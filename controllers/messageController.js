@@ -15,7 +15,6 @@ export const sendMessage = async (req, res) => {
                 participants: [senderId, receiverId]
             })
         };
-        console.log(gotConversation, "Line no 21")
         const newMessage = await Message.create({
             senderId,
             receiverId,
@@ -28,7 +27,7 @@ export const sendMessage = async (req, res) => {
 
         await Promise.all([gotConversation.save(), newMessage.save()]);
 
-        res.status(201).json({ message: "Message sent successfully" })
+        res.status(201).json({ newMessage })
         // SOCKET IO
 
     } catch (error) {
@@ -53,26 +52,10 @@ export const getMessage = async (req, res) => {
                 return res.status(404).json({ message: 'Conversation not found!' })
             }
             if (conversation) {
-                return res.status(200).json(conversation)
+                return res.status(200).json(conversation?.messages)
                 console.log(conversation);
             };
         }
-        // if (senderId) {
-        //     console.log(senderId)
-        // }
-
-        // if (!receiverId) {
-        //     console.log('Not found receiver id')
-        //     return res.status(400).json({ message: 'Receiver ID are required!' });
-        // }
-
-
-
-        // if (!conversation) {
-        //     return res.status(404).json({ message: 'Conversation not found!' });
-        // }
-
-        // return res.status(200).json({ conversation });
     } catch (error) {
         console.error('Error fetching message:', error);
         return res.status(500).json({ message: 'Internal server error' });

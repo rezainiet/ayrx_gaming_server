@@ -4,10 +4,11 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import dotenv from 'dotenv';
 import connectDB from "./config/database.js";
-import userRoute from "./routes/userRoute.js"
-import messageRoute from "./routes/messageRoute.js"
+import userRoute from "./routes/userRoute.js";
+import messageRoute from "./routes/messageRoute.js";
+import { app, server } from "./socket/socket.js"
 
-const app = express();
+// const app = express();
 const PORT = process.env.PORT || 4000;
 
 const corsConfig = {
@@ -33,7 +34,7 @@ app.use("/api/v1/message", messageRoute);
 app.get('/', (req, res) => (res.send(`This app is running on port: ${PORT}`)));
 
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     connectDB();
     console.log(`App is running on http://localhost:${PORT}`)
 });

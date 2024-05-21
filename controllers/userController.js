@@ -3,41 +3,63 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 
+// register user API
 
-// register api
 export const register = async (req, res) => {
     try {
-        const { fullName, userName, password, confirmPassword, gender, profilePhoto } = req.body;
+        const {
+            fullName, userName, password, confirmPassword, gender, profilePhoto,
+            aboutUser, dob, interests, expertise, userTitle
+        } = req.body;
+
+        // Validate required fields
         if (!fullName || !userName || !password || !confirmPassword || !gender) {
-            return res.status(400).json({ message: "All fields are required." })
+            return res.status(400).json({ message: "All fields are required." });
         }
+
+        // Check if passwords match
         if (password !== confirmPassword) {
-            return res.status(400).json({ message: "Password not matched!" })
+            return res.status(400).json({ message: "Password not matched!" });
         }
 
-        const user = await User.findOne({ userName });
-        if (user) {
-            return res.status(400).json({ message: "Username already exist." })
+        // Check if username already exists
+        const existingUser = await User.findOne({ userName });
+        if (existingUser) {
+            return res.status(400).json({ message: "Username already exists." });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10)
-        // profilePhoto
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Default profile photo based on gender
         const maleProfilePhoto = `https://avatar.iran.liara.run/public/boy?username=${userName}`;
         const femaleProfilePhoto = `https://avatar.iran.liara.run/public/girl?username=${userName}`;
 
-        await User.create({
+        // Create new user
+        const newUser = new User({
             fullName,
             userName,
             password: hashedPassword,
-            profilePhoto: profilePhoto ? profilePhoto : gender === "female" ? femaleProfilePhoto : maleProfilePhoto,
-            gender
+            profilePhoto: profilePhoto || (gender === "female" ? femaleProfilePhoto : maleProfilePhoto),
+            gender,
+            aboutUser: aboutUser || "",
+            dob: dob ? new Date(dob) : null,
+            interests: interests || [],
+            expertise: expertise || [],
+            userTitle: userTitle || ""
         });
-        return res.status(201).json({ message: "User created successfully!", success: true })
-    }
-    catch (error) {
-        console.log(error)
+
+        // Save user to the database
+        await newUser.save();
+
+        // Respond with success message
+        return res.status(201).json({ message: "User created successfully!", success: true });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "An error occurred while creating the user.", error });
     }
 };
+
 
 
 
@@ -103,5 +125,87 @@ export const getOtherUsers = async (req, res) => {
         return res.status(200).json(otherUsers)
     } catch (error) {
         console.log(error)
+    }
+};
+
+
+
+// update user's Interests
+// export const updateUserInterests = async (req, res) => {
+//     try {
+//         const { userId, interests } = req.body;
+
+//         // Validate input
+//         if (!userId || !Array.isArray(interests)) {
+//             return res.status(400).json({ message: "Invalid input. userId and interests are required." });
+//         }
+
+//         // Find the user by ID and update interests
+//         const user = await User.findByIdAndUpdate(
+//             userId,
+//             { interests },
+//             { new: true } // This option returns the updated document
+//         );
+
+//         // Check if user was found
+//         if (!user) {
+//             return res.status(404).json({ message: "User not found." });
+//         }
+
+//         // Respond with the updated user data
+//         return res.status(200).json({ message: "Interests updated successfully!", user });
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({ message: "An error occurred while updating interests.", error });
+//     }
+// };
+
+
+export const getUserData = async (req, res) => {
+    try {
+        const userId = req.id;
+
+        // Fetch user data by ID
+        const user = await User.findById(userId).select("-password");
+
+        // Check if user exists
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Respond with user data
+        res.status(200).json({ user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "An error occurred while fetching user data.", error });
+    }
+};
+
+
+// Update user details API
+export const updateUserDetails = async (req, res) => {
+    try {
+        const userId = req.id; // Assuming you have middleware that adds the user ID to req.user
+        const { fullName, userTitle, aboutUser, interests } = req.body;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {
+                fullName,
+                userTitle,
+                aboutUser,
+                interests,
+            },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        return res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+    } catch (error) {
+        console.error('Error updating user details:', error);
+        return res.status(500).json({ message: 'Server error' });
     }
 };

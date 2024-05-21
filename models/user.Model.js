@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const userModel = new mongoose.Schema({
     fullName: {
         type: String,
@@ -21,6 +22,29 @@ const userModel = new mongoose.Schema({
         type: String,
         enum: ["male", "female"],
         required: true
+    },
+    aboutUser: {
+        type: String,
+        default: ""
+    },
+    dob: {
+        type: Date
+    },
+    interests: {
+        type: [String],
+        default: []
+    },
+    posts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post"
+    }],
+    expertise: {
+        type: [String],
+        default: []
+    },
+    userTitle: {
+        type: String,
+        default: ""
     }
 }, { timestamps: true });
 

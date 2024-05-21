@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import connectDB from "./config/database.js";
 import userRoute from "./routes/userRoute.js";
 import messageRoute from "./routes/messageRoute.js";
+import postRoute from "./routes/postRoute.js"
 import { app, server } from "./socket/socket.js"
 
 // const app = express();
@@ -28,6 +29,8 @@ app.use(cors(corsConfig))
 app.use("/api/v1/user", userRoute);
 // http://localhost:4000/api/v1/user/register
 app.use("/api/v1/message", messageRoute);
+// http://localhost:4000/api/v1/message
+app.use("/api/v1/posts", postRoute);
 // http://localhost:4000/api/v1/message
 
 

@@ -1,4 +1,5 @@
 import { Game } from "../models/game.Model.js";
+import { User } from "../models/user.Model.js";
 
 export const createGame = async (req, res) => {
     try {
@@ -50,12 +51,21 @@ export const getSingleGame = async (req, res) => {
     try {
         const id = req.params.id;
 
-        // Fetch the game by ID from the database
-        // const game = await Game.findById(id).populate('relatedGroups.group');
-        const game = await Game.findById(id);
+        // Fetch the game by ID from the database, populate relatedGroups
+        const game = await Game.findById(id).populate('relatedGroups.group');
 
         if (!game) {
             return res.status(404).json({ message: "Game not found" });
+        }
+
+        // Populate additional information for the author of each related group
+        for (const relatedGroup of game.relatedGroups) {
+            if (relatedGroup.group.author) {
+                // Populate additional fields for the author using the User model
+                const authorInfo = await User.findById(relatedGroup.group.author)
+                    .select('_id fullName profilePhoto');
+                relatedGroup.group.author = authorInfo;
+            }
         }
 
         // Return the fetched game

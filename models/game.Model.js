@@ -1,14 +1,12 @@
 import mongoose from "mongoose";
 
-// Define the schema for related groups
 const relatedGroupSchema = new mongoose.Schema({
     group: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Group"
     }
-}, { _id: false }); // Disable _id for subdocuments if not needed
+}, { _id: false });
 
-// Define the schema for the game
 const gameSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -35,7 +33,7 @@ const gameSchema = new mongoose.Schema({
         min: 0,
         max: 5
     },
-    relatedGroups: [relatedGroupSchema]
+    relatedGroups: [relatedGroupSchema] // Array of related groups
 }, { timestamps: true });
 
 export const Game = mongoose.model("Game", gameSchema);

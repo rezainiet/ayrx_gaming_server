@@ -8,6 +8,7 @@ import userRoute from "./routes/userRoute.js";
 import messageRoute from "./routes/messageRoute.js";
 import postRoute from "./routes/postRoute.js"
 import gameRoute from "./routes/gameRoute.js"
+import groupRoute from "./routes/groupRoute.js"
 import { app, server } from "./socket/socket.js"
 
 // const app = express();
@@ -32,9 +33,11 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/message", messageRoute);
 // http://localhost:4000/api/v1/message
 app.use("/api/v1/posts", postRoute);
-
+// http://localhost:4000/api/v1/posts
 app.use("/api/v1/games", gameRoute);
-// http://localhost:4000/api/v1/message
+// http://localhost:4000/api/v1/games
+app.use("/api/v1/groups", groupRoute);
+// http://localhost:4000/api/v1/groups
 
 
 app.get('/', (req, res) => (res.send(`This app is running on port: ${PORT}`)));

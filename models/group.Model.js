@@ -18,8 +18,7 @@ const groupSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    members: {
-    }
+    members: []
 }, { timestamps: true });
 
-export const Post = mongoose.model("Groups", groupSchema);
+export const Group = mongoose.model("Group", groupSchema);

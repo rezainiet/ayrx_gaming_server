@@ -4,19 +4,26 @@ import { User } from "../models/user.Model.js";
 // Create a new post
 export const createPost = async (req, res) => {
     try {
-        const { title, postContent, privacy, imageUrl, tags } = req.body;
-        const userId = req.id; // Assuming you have middleware that adds the user ID to req
+        const { title, postContent, privacy, imageUrl } = req.body;
+        const userId = req.id; // Assuming you have middleware that adds the user ID to req.user
 
+        // Create new post
         const newPost = new Post({
             title,
             postContent,
             privacy,
             imageUrl,
-            author: userId,
-            tags
+            author: userId
         });
 
+        // Save the new post
         await newPost.save();
+
+        // Update user's post array
+        await User.findByIdAndUpdate(userId, {
+            $push: { posts: newPost._id }
+        });
+
         return res.status(201).json({ message: 'Post created successfully', post: newPost });
     } catch (error) {
         console.error('Error creating post:', error);
@@ -24,11 +31,75 @@ export const createPost = async (req, res) => {
     }
 };
 
-const getPosts = async () => {
+
+export const getPosts = async (req, res) => {
+    const userId = req.params.id;
     try {
-        const posts = await Post.find().populate("author", "userName fullName profilePhoto");
-        console.log("Posts with author details:", posts);
+        const user = await User.findById(userId).populate({
+            path: 'posts',
+            populate: {
+                path: 'author',
+                select: 'userName fullName profilePhoto'
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const posts = user.posts;
+        return res.status(200).json({ posts });
     } catch (error) {
         console.error("Error fetching posts:", error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+
+export const createComment = async (req, res) => {
+    const postId = req.params.postId;
+    const { userId, text } = req.body;
+
+    try {
+        // Validate input
+        if (!userId || !text) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        // Check if the post exists
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        // Check if the user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const { fullName, profilePhoto, _id } = user;
+
+        // Create the comment object
+        const comment = {
+            user: _id,
+            fullName,
+            profilePhoto,
+            comment: text,
+            createdAt: new Date()
+        };
+
+        console.log(comment);
+
+        // Add the comment to the post
+        post.comments.push(comment);
+        await post.save();
+
+        // Respond with the updated post (including the new comment)
+        return res.status(201).json(post);
+    } catch (error) {
+        console.error("Error while posting comment:", error);
+        return res.status(500).json({ message: 'Server error' });
     }
 };

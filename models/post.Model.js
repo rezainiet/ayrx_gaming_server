@@ -1,5 +1,31 @@
 import mongoose from "mongoose";
 
+const commentSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    fullName: {
+        type: String,
+        // required: true,
+        default: ""
+    },
+    profilePhoto: {
+        type: String,
+        // required: true,
+        default: ""
+    },
+    comment: {
+        type: String,
+        required: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 const postModel = new mongoose.Schema({
     title: {
         type: String,
@@ -31,20 +57,7 @@ const postModel = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    comments: [{
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        },
-        comment: {
-            type: String,
-            required: true
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now
-        }
-    }]
+    comments: [commentSchema]
 }, { timestamps: true });
 
 export const Post = mongoose.model("Post", postModel);

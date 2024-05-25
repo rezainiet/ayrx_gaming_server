@@ -7,6 +7,7 @@ import connectDB from "./config/database.js";
 import userRoute from "./routes/userRoute.js";
 import messageRoute from "./routes/messageRoute.js";
 import postRoute from "./routes/postRoute.js"
+import gameRoute from "./routes/gameRoute.js"
 import { app, server } from "./socket/socket.js"
 
 // const app = express();
@@ -31,6 +32,8 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/message", messageRoute);
 // http://localhost:4000/api/v1/message
 app.use("/api/v1/posts", postRoute);
+
+app.use("/api/v1/games", gameRoute);
 // http://localhost:4000/api/v1/message
 
 

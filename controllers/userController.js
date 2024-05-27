@@ -182,6 +182,28 @@ export const getUserData = async (req, res) => {
 };
 
 
+export const getUserDataById = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const authUserId = req.id; // Assuming req.user contains the authenticated user's data
+
+        // Fetch user data by ID
+        const user = await User.findById(userId).select("-password");
+
+        // Check if user exists
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Respond with user data and authenticated user ID
+        res.status(200).json({ user, authUserId });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "An error occurred while fetching user data.", error });
+    }
+};
+
+
 // Update user details API
 export const updateUserDetails = async (req, res) => {
     try {
@@ -207,5 +229,73 @@ export const updateUserDetails = async (req, res) => {
     } catch (error) {
         console.error('Error updating user details:', error);
         return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+
+export const sendFriendRequest = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        // console.log("userId", userId)
+        const authUserId = req.id; // Ensure req.user contains the authenticated user's data
+        // console.log(id)
+        console.log("authUserId", authUserId)
+        // console.log(req.user)
+
+        // Update the friend request logic here based on your schema
+        await User.findByIdAndUpdate(authUserId, {
+            $addToSet: { sentRequests: userId }
+        });
+
+        await User.findByIdAndUpdate(userId, {
+            $addToSet: { receivedRequests: authUserId }
+        });
+
+        res.status(200).json({ message: 'Friend request sent successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error sending friend request', error });
+    }
+};
+
+export const cancelFriendRequest = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const authUserId = req.id; // Ensure req.user contains the authenticated user's data
+
+        // Update the friend request logic here based on your schema
+        await User.findByIdAndUpdate(authUserId, {
+            $pull: { sentRequests: userId }
+        });
+
+        await User.findByIdAndUpdate(userId, {
+            $pull: { receivedRequests: authUserId }
+        });
+
+        res.status(200).json({ message: 'Friend request cancelled successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error cancelling friend request', error });
+    }
+};
+
+export const acceptFriendRequest = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const authUserId = req.id; // Ensure req.user contains the authenticated user's data
+
+        // Update the friend request logic here based on your schema
+        await User.findByIdAndUpdate(authUserId, {
+            $pull: { receivedRequests: userId },
+            $addToSet: { friends: userId }
+        });
+
+        await User.findByIdAndUpdate(userId, {
+            $pull: { sentRequests: authUserId },
+            $addToSet: { friends: authUserId }
+        });
+
+        res.status(200).json({ message: 'Friend request accepted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error accepting friend request', error });
     }
 };

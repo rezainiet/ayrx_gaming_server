@@ -18,7 +18,14 @@ const groupSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    members: []
+    members: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    posts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "GameGroupPost"
+    }]
 }, { timestamps: true });
 
 export const Group = mongoose.model("Group", groupSchema);

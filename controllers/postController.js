@@ -1,3 +1,5 @@
+import { GameGroupPost } from "../models/gameGroupPost.Model.js";
+import { Group } from "../models/group.Model.js";
 import { Post } from "../models/post.Model.js";
 import { User } from "../models/user.Model.js";
 
@@ -101,5 +103,37 @@ export const createComment = async (req, res) => {
     } catch (error) {
         console.error("Error while posting comment:", error);
         return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+export const createPostInGroup = async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const { content, authorId } = req.body;
+
+        // Create a new post
+        const post = new GameGroupPost({
+            content,
+            author: authorId
+        });
+
+        // Save the post to the database
+        const savedPost = await post.save();
+
+        // Add the post to the group's posts array
+        const group = await Group.findByIdAndUpdate(groupId, {
+            $push: { posts: savedPost._id }
+        }, { new: true });
+
+        if (!group) {
+            return res.status(404).json({ message: "Group not found" });
+        }
+
+        // Return the created post
+        res.status(201).json(savedPost);
+    } catch (error) {
+        console.error("Error creating post:", error);
+        res.status(500).json({ message: "Server error. Please try again later." });
     }
 };

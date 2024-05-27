@@ -45,7 +45,24 @@ const userModel = new mongoose.Schema({
     userTitle: {
         type: String,
         default: ""
-    }
+    },
+    groups: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Group"
+    }],
+    // New fields for friend requests
+    sentRequests: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    receivedRequests: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    friends: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }]
 }, { timestamps: true });
 
 export const User = mongoose.model("User", userModel);

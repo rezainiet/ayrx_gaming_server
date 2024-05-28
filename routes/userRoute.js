@@ -1,5 +1,5 @@
 import express from "express";
-import { getOtherUsers, getUserData, getUserDataById, login, logout, register, updateUserDetails, sendFriendRequest, cancelFriendRequest, acceptFriendRequest } from "../controllers/userController.js";
+import { getOtherUsers, getUserData, getUserDataById, login, logout, register, updateUserDetails, sendFriendRequest, cancelFriendRequest, acceptFriendRequest, blockUser, searchUsers, unBlockUser } from "../controllers/userController.js";
 import isAuthenticated from "../middleware/isAuthenticated.js";
 
 const router = express.Router();
@@ -18,5 +18,11 @@ router.route("/").get(isAuthenticated, getOtherUsers);
 router.route("/sendFriendRequest").post(isAuthenticated, sendFriendRequest);
 router.route("/cancelFriendRequest").post(isAuthenticated, cancelFriendRequest);
 router.route("/acceptFriendRequest").post(isAuthenticated, acceptFriendRequest);
+router.route("/blockUser").post(isAuthenticated, blockUser);
+router.route("/unBlockUser").post(isAuthenticated, unBlockUser);
+
+
+// New route for search functionality
+router.route("/search").get(isAuthenticated, searchUsers);
 
 export default router;

@@ -299,3 +299,68 @@ export const acceptFriendRequest = async (req, res) => {
         res.status(500).json({ message: 'Error accepting friend request', error });
     }
 };
+
+
+export const blockUser = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const authUserId = req.id; // Ensure req.user contains the authenticated user's data
+
+        // Update the user's blocked users list
+        await User.findByIdAndUpdate(authUserId, {
+            $addToSet: { blockedUsers: userId }
+        });
+        await User.findByIdAndUpdate(userId, {
+            $addToSet: { gotBlocked: authUserId }
+        });
+
+        res.status(200).json({ message: 'User blocked successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error blocking user', error });
+    }
+};
+
+export const unBlockUser = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const authUserId = req.id; // Ensure req.user contains the authenticated user's data
+
+        // Update the user's blocked users list
+        await User.findByIdAndUpdate(authUserId, {
+            $pull: { blockedUsers: userId }
+        });
+        await User.findByIdAndUpdate(userId, {
+            $pull: { gotBlocked: authUserId }
+        });
+
+        res.status(200).json({ message: 'User unblocked successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error unblocking user', error });
+    }
+};
+
+
+
+export const searchUsers = async (req, res) => {
+    try {
+        const query = req.query.query;
+        console.log(query)
+        if (!query) {
+            return res.status(400).json({ message: "Query parameter is required" });
+        }
+
+        // Search users by fullName, userName, or interests (case insensitive)
+        const users = await User.find({
+            $or: [
+                { fullName: { $regex: query, $options: "i" } },
+                // { userName: { $regex: query, $options: "i" } },
+                // { interests: { $regex: query, $options: "i" } }
+            ]
+        }).select("-password");
+
+        res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "An error occurred while searching for users.", error });
+    }
+};

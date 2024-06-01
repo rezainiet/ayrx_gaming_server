@@ -14,6 +14,10 @@ const userModel = new mongoose.Schema({
         type: String,
         required: true
     },
+    balance: {
+        type: Number,
+        default: 0
+    },
     profilePhoto: {
         type: String,
         default: ""
@@ -50,7 +54,6 @@ const userModel = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Group"
     }],
-    // New fields for friend requests
     sentRequests: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
@@ -70,7 +73,45 @@ const userModel = new mongoose.Schema({
     gotBlocked: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
-    }]
+    }],
+    hourlyRate: {
+        type: Number,
+        default: 0,
+        min: 5,
+        max: 100
+    },
+    projects: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Projects'
+        }
+    ],
+    transactions: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Transaction'
+        }
+    ],
+    bookings: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Bookings'
+        }
+    ],
+    buyerAppointments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Appointment'
+    }],
+    sellerAppointments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Appointment'
+    }],
+    forumPosts: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "ForumPost"
+        }
+    ]
 }, { timestamps: true });
 
 export const User = mongoose.model("User", userModel);

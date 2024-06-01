@@ -1,6 +1,10 @@
 import { User } from "../models/user.Model.js";
 import bcrypt from "bcrypt";
+import expressAsyncHandler from "express-async-handler";
 import jwt from "jsonwebtoken";
+import { Group } from "../models/group.Model.js";
+import { Conversation } from "../models/conversation.Model.js";
+import { Projects } from '../models/projects.Model.js'
 
 
 // register user API
@@ -117,18 +121,48 @@ export const logout = async (req, res) => {
     }
 };
 
+// Fetch all users to the messages
+// export const getOtherUsers_Old = async (req, res) => {
+//     try {
+//         const loggedInUserId = req.id;
+//         // const otherUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+//         const otherUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+//         return res.status(200).json(otherUsers)
+//     } catch (error) {
+//         console.log(error)
+//     }
+// };
 
 export const getOtherUsers = async (req, res) => {
     try {
         const loggedInUserId = req.id;
-        const otherUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
-        return res.status(200).json(otherUsers)
+
+        // Fetch conversations involving the logged-in user
+        const conversations = await Conversation.find({
+            participants: loggedInUserId
+        }).select('participants');
+
+        // Extract participants from conversations, excluding the logged-in user
+        const participantIds = new Set();
+        conversations.forEach(conversation => {
+            conversation.participants.forEach(participantId => {
+                if (participantId.toString() !== loggedInUserId) {
+                    participantIds.add(participantId.toString());
+                }
+            });
+        });
+
+        // Fetch details of these users, excluding the password field
+        const otherUsers = await User.find({
+            _id: { $in: Array.from(participantIds) }
+        }).select("-password");
+
+        return res.status(200).json(otherUsers);
     } catch (error) {
-        console.log(error)
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
     }
 };
-
-
 
 // update user's Interests
 // export const updateUserInterests = async (req, res) => {
@@ -341,26 +375,145 @@ export const unBlockUser = async (req, res) => {
 
 
 
-export const searchUsers = async (req, res) => {
-    try {
-        const query = req.query.query;
-        console.log(query)
-        if (!query) {
-            return res.status(400).json({ message: "Query parameter is required" });
-        }
+export const searchUsers = expressAsyncHandler(async (req, res) => {
+    const { query } = req.query;
 
-        // Search users by fullName, userName, or interests (case insensitive)
+    if (!query) {
+        return res.status(400).json({ message: "Query parameter is required" });
+    }
+
+    try {
+        // Search users
         const users = await User.find({
             $or: [
-                { fullName: { $regex: query, $options: "i" } },
-                // { userName: { $regex: query, $options: "i" } },
-                // { interests: { $regex: query, $options: "i" } }
+                { fullName: { $regex: query, $options: 'i' } },
+                { aboutUser: { $regex: query, $options: 'i' } }
             ]
-        }).select("-password");
+        }).select('_id fullName profilePhoto aboutUser');
 
-        res.status(200).json(users);
+        // Search groups
+        const groups = await Group.find({
+            $or: [
+                { title: { $regex: query, $options: 'i' } },
+                { description: { $regex: query, $options: 'i' } }
+            ]
+        }).select('_id title description coverPhoto');
+
+        // Combine and return the results
+        const results = [
+            ...users.map(user => ({ ...user._doc, type: 'user' })),
+            ...groups.map(group => ({ ...group._doc, type: 'group' }))
+        ];
+
+        res.status(200).json(results);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "An error occurred while searching for users.", error });
+        console.error("Error fetching search results:", error);
+        res.status(500).json({ message: "Server error. Please try again later." });
+    }
+});
+
+export const updateHourlyRate = async (req, res) => {
+    const { hourlyRate } = req.body;
+    console.log(hourlyRate)
+
+    if (hourlyRate < 4 || hourlyRate > 100) {
+        return res.status(400).json({ message: 'The hourly rate must be between 0% and 100%.' });
+    }
+
+    try {
+        const user = await User.findById(req.id); // Assuming req.user contains the authenticated user's ID
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        user.hourlyRate = hourlyRate;
+        await user.save();
+
+        res.status(200).json({ message: 'Hourly rate updated successfully.', hourlyRate: user.hourlyRate });
+    } catch (error) {
+        res.status(500).json({ message: 'An error occurred while updating the hourly rate.', error: error.message });
+    }
+};
+
+
+export const addUserProject = async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        // Find the user by userId
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Extract project data from request body
+        const { name, coverPhoto, price, tags, description } = req.body;
+
+        // Create a new project object using project schema
+        const project = new Projects({
+            name,
+            coverPhoto,
+            price,
+            tags,
+            description,
+            author: userId // Setting the user as the author of the project
+        });
+
+        // Save the new project to the database
+        const savedProject = await project.save();
+
+        // Add the new project to user's projects array
+        user.projects.push(savedProject._id);
+
+        // Save the updated user object
+        await user.save();
+
+        res.status(201).json({ message: 'Project added successfully', project: savedProject });
+    } catch (error) {
+        console.error('Error adding project:', error);
+        res.status(500).json({ error: 'Failed to add project' });
+    }
+};
+
+export const getProjects = async (req, res) => {
+    const userId = req.params.userID; // Assuming you have user authentication middleware that sets req.id
+    console.log(userId)
+    try {
+        // Find the user and populate their projects
+        const user = await User.findById(userId).populate('projects');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ projects: user.projects });
+    } catch (error) {
+        console.error('Error fetching projects:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+export const getProjectById = async (req, res) => {
+    try {
+        const userId = req.id; // Assuming you have user authentication middleware that sets req.id
+        const projectId = req.params.id;
+        console.log(projectId)
+
+        // Find the project by its ID
+        const project = await Projects.findById(projectId);
+        if (!project) {
+            return res.status(404).json({ message: 'Project not found' });
+        }
+
+        // Check if the authenticated user is the author of the project
+        // if (project.author.toString() !== userId) {
+        //     return res.status(403).json({ message: 'You are not authorized to view this project' });
+        // }
+
+        res.json({ project });
+    } catch (error) {
+        console.error('Error fetching project by ID:', error);
+        res.status(500).json({ message: 'Server error', error });
     }
 };

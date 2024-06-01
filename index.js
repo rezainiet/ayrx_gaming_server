@@ -10,6 +10,12 @@ import postRoute from "./routes/postRoute.js"
 import gameRoute from "./routes/gameRoute.js"
 import groupRoute from "./routes/groupRoute.js"
 import commentRoute from "./routes/commentRoute.js"
+import paymentRoute from "./routes/paymentRoute.js"
+import appointmentRoute from "./routes/appointmentRoute.js"
+import bookingRoute from "./routes/bookingRoute.js"
+import forumPostRoute from "./routes/forumPostRoute.js"
+import forumCommentRoutes from "./routes/forumCommentRoutes.js"
+import forumReplyRoutes from "./routes/forumReplyRoutes.js"
 import { app, server } from "./socket/socket.js"
 
 // const app = express();
@@ -39,7 +45,21 @@ app.use("/api/v1/games", gameRoute);
 // http://localhost:4000/api/v1/games
 app.use("/api/v1/groups", groupRoute);
 app.use("/api/v1/comment", commentRoute);
-// http://localhost:4000//api/v1/comment
+// http://localhost:4000/api/v1/comment
+
+app.use("/api/v1/payment", paymentRoute);
+// http://localhost:4000/api/v1/payment
+
+// http://localhost:4000/api/v1/booking
+app.use("/api/v1/booking", bookingRoute);
+
+
+// http://localhost:4000/api/v1/appointment
+app.use("/api/v1/appointment", appointmentRoute);
+
+app.use('/api/forumPosts', forumPostRoute);
+app.use('/api/forumComments', forumCommentRoutes);
+app.use('/api/forumReplies', forumReplyRoutes);
 
 
 app.get('/', (req, res) => (res.send(`This app is running on port: ${PORT}`)));

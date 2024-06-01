@@ -1,12 +1,14 @@
 import { Conversation } from "../models/conversation.Model.js";
 import { Message } from "../models/message.Model.js";
+import { User } from "../models/user.Model.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
-
 export const sendMessage = async (req, res) => {
     try {
         const senderId = req.id;
         const receiverId = req.params.id;
         const { message } = req.body;
+
+        // Find or create conversation
         let gotConversation = await Conversation.findOne({
             participants: { $all: [senderId, receiverId] },
         });
@@ -14,36 +16,44 @@ export const sendMessage = async (req, res) => {
         if (!gotConversation) {
             gotConversation = await Conversation.create({
                 participants: [senderId, receiverId]
-            })
+            });
         };
+
+        // Create new message
         const newMessage = await Message.create({
             senderId,
             receiverId,
             message
         });
-        if (newMessage) {
-            gotConversation.messages.push(newMessage._id);
-        };
 
+        // Update last message time for sender and receiver
+        const currentTime = new Date();
+        await Promise.all([
+            User.findByIdAndUpdate(senderId, { lastMessageTime: currentTime }),
+            User.findByIdAndUpdate(receiverId, { lastMessageTime: currentTime })
+        ]);
 
-        await Promise.all([gotConversation.save(), newMessage.save()]);
+        // Add message to conversation
+        gotConversation.messages.push(newMessage._id);
+        await gotConversation.save();
 
-
-        // SOCKET IO
+        // Emit new message event to receiver
         const receiverSocketId = getReceiverSocketId(receiverId);
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("newMessage", newMessage);
         }
 
+        // Update online users list (assuming you have a function for this)
+        // Example: io.emit("updateUserList");
+
         return res.status(201).json({
             newMessage
-        })
-
+        });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
-
 
 
 // get messages

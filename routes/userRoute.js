@@ -1,5 +1,5 @@
 import express from "express";
-import { getOtherUsers, getUserData, getUserDataById, login, logout, register, updateUserDetails, sendFriendRequest, cancelFriendRequest, acceptFriendRequest, blockUser, searchUsers, unBlockUser } from "../controllers/userController.js";
+import { getOtherUsers, getUserData, getUserDataById, login, logout, register, updateUserDetails, sendFriendRequest, cancelFriendRequest, acceptFriendRequest, blockUser, searchUsers, unBlockUser, updateHourlyRate, addUserProject, getProjects, getProjectById } from "../controllers/userController.js";
 import isAuthenticated from "../middleware/isAuthenticated.js";
 
 const router = express.Router();
@@ -21,8 +21,16 @@ router.route("/acceptFriendRequest").post(isAuthenticated, acceptFriendRequest);
 router.route("/blockUser").post(isAuthenticated, blockUser);
 router.route("/unBlockUser").post(isAuthenticated, unBlockUser);
 
-
 // New route for search functionality
 router.route("/search").get(isAuthenticated, searchUsers);
+
+
+// New route for updating hourly rate
+router.route("/updateHourlyRate").put(isAuthenticated, updateHourlyRate);
+// http://localhost:4000/api/v1/user/:userId/addUserProject
+router.route("/:userId/addUserProject").post(isAuthenticated, addUserProject);
+// http://localhost:4000/api/v1/user/projects/projectID
+router.route("/getProjects/:userID").get(isAuthenticated, getProjects);
+router.route("/projects/:id").get(isAuthenticated, getProjectById);
 
 export default router;

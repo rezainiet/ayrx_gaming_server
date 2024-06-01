@@ -172,3 +172,24 @@ export const leaveGroup = asyncHandler(async (req, res) => {
 
     res.status(200).json({ message: "User left the group successfully" });
 });
+
+
+export const updateGroup = asyncHandler(async (req, res) => {
+    const { groupId } = req.params;
+    const { title, coverPhoto } = req.body;
+
+    // Find the group by ID
+    const group = await Group.findById(groupId);
+    if (!group) {
+        return res.status(404).json({ message: "Group not found" });
+    }
+
+    // Update the group's title and cover photo if provided
+    if (title) group.title = title;
+    if (coverPhoto) group.coverPhoto = coverPhoto;
+
+    // Save the updated group
+    await group.save();
+
+    res.status(200).json({ message: "Group updated successfully", group });
+});

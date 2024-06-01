@@ -76,7 +76,7 @@ const userModel = new mongoose.Schema({
     }],
     hourlyRate: {
         type: Number,
-        default: 0,
+        default: 5,
         min: 5,
         max: 100
     },

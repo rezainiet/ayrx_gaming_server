@@ -74,38 +74,47 @@ export const login = async (req, res) => {
     try {
         const { userName, password } = req.body;
         if (!userName || !password) {
-            return res.status(400).json({ message: "All fields are required." })
+            return res.status(400).json({ message: "All fields are required." });
         }
         const user = await User.findOne({ userName });
         if (!user) {
             return res.status(400).json({
                 message: "Incorrect username or password.",
                 success: false
-            })
+            });
         }
-        const isPasswordMatched = await bcrypt.compare(password, user.password)
+        const isPasswordMatched = await bcrypt.compare(password, user.password);
         if (!isPasswordMatched) {
             return res.status(400).json({
                 message: "Incorrect username or password.",
                 success: false
-            })
-        };
+            });
+        }
+
         const tokenData = {
             userId: user._id
         };
-        const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
 
-        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'strict' }).json({
+        // JWT token set to expire in 7 days
+        const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '7d' });
+
+        // Setting the cookie to also expire in 7 days
+        return res.status(200).cookie("token", token, {
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+            httpOnly: true, // the cookie is only accessible by the web server
+            sameSite: 'strict' // strict SameSite policy
+        }).json({
             _id: user._id,
             userName: user.userName,
             fullName: user.fullName,
             profilePhoto: user.profilePhoto
-        })
-    }
-    catch (error) {
-        console.log(error)
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 
 
@@ -161,6 +170,19 @@ export const getOtherUsers = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+export const getRandomUsers = async (req, res) => {
+    try {
+        const randomUsers = await User.aggregate([
+            { $sample: { size: 10 } } // Fetch 10 random users
+        ]);
+        res.json(randomUsers);
+    } catch (error) {
+        console.error('Error fetching random users:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 

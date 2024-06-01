@@ -1,5 +1,5 @@
 import express from "express";
-import { getOtherUsers, getUserData, getUserDataById, login, logout, register, updateUserDetails, sendFriendRequest, cancelFriendRequest, acceptFriendRequest, blockUser, searchUsers, unBlockUser, updateHourlyRate, addUserProject, getProjects, getProjectById } from "../controllers/userController.js";
+import { getOtherUsers, getUserData, getUserDataById, login, logout, register, updateUserDetails, sendFriendRequest, cancelFriendRequest, acceptFriendRequest, blockUser, searchUsers, unBlockUser, updateHourlyRate, addUserProject, getProjects, getProjectById, getRandomUsers } from "../controllers/userController.js";
 import isAuthenticated from "../middleware/isAuthenticated.js";
 
 const router = express.Router();
@@ -12,6 +12,7 @@ router.route("/getUserDetails").get(isAuthenticated, getUserData);
 router.route("/getUserDataById/:id").get(isAuthenticated, getUserDataById);
 router.route("/updateUserDetails").put(isAuthenticated, updateUserDetails);
 router.route("/").get(isAuthenticated, getOtherUsers);
+router.route("/getRandomUser").get(getRandomUsers);
 
 // New routes for friend requests
 // http://localhost:4000/api/v1/user/sendFriendRequest

@@ -67,5 +67,5 @@ app.get('/', (req, res) => (res.send(`This app is running on port: ${PORT}`)));
 
 server.listen(PORT, () => {
     connectDB();
-    console.log(`App is running on http://localhost:${PORT}`)
+    console.log(`Hey people! App is running on http://localhost:${PORT}`)
 });

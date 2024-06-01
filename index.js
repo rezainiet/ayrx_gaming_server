@@ -20,7 +20,8 @@ import forumCommentRoutes from "./routes/forumCommentRoutes.js";
 import forumReplyRoutes from "./routes/forumReplyRoutes.js";
 import { app, server } from "./socket/socket.js";
 
-const PORT = process.env.PORT || 4000;
+// Ensure there are no trailing characters in the PORT environment variable
+const PORT = parseInt(process.env.PORT, 10) || 4000;
 
 const corsConfig = {
     origin: process.env.CLIENT_URL,
@@ -52,6 +53,11 @@ app.use('/api/forumReplies', forumReplyRoutes);
 
 app.get('/', (req, res) => res.send(`This app is running on port: ${PORT}`));
 
-server.listen(PORT, () => {
-    console.log(`Hey people! App is running on http://localhost:${PORT}`);
+// Handle server errors
+server.listen(PORT, (err) => {
+    if (err) {
+        console.error('Error starting server:', err);
+    } else {
+        console.log(`Hey people! App is running on http://localhost:${PORT}`);
+    }
 });

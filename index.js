@@ -22,9 +22,9 @@ import { app, server } from "./socket/socket.js"
 const PORT = process.env.PORT || 4000;
 
 const corsConfig = {
-    origin: 'http://localhost:5173',
+    origin: process.env.CLIENT_URL, // use environment variable for flexibility
     credentials: true
-}
+};
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));

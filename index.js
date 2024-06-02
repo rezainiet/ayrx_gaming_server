@@ -24,7 +24,7 @@ import { app, server } from "./socket/socket.js";
 const PORT = parseInt(process.env.PORT, 10) || 4000;
 
 const corsConfig = {
-    origin: process.env.CLIENT_URL,
+    origin: process.env.CLIENT_URL || 4000,
     credentials: true
 };
 

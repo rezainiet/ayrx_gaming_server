@@ -69,7 +69,6 @@ export const register = async (req, res) => {
 
 
 // login api
-
 export const login = async (req, res) => {
     try {
         const { userName, password } = req.body;
@@ -102,7 +101,8 @@ export const login = async (req, res) => {
         return res.status(200).cookie("token", token, {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
             httpOnly: true, // the cookie is only accessible by the web server
-            sameSite: 'strict' // strict SameSite policy
+            secure: false, // cookie will be sent only over HTTPS
+            sameSite: 'None' // allow cross-origin requests
         }).json({
             _id: user._id,
             userName: user.userName,
@@ -114,6 +114,7 @@ export const login = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 
 

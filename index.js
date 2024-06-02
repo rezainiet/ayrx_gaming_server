@@ -20,11 +20,10 @@ import forumCommentRoutes from "./routes/forumCommentRoutes.js";
 import forumReplyRoutes from "./routes/forumReplyRoutes.js";
 import { app, server } from "./socket/socket.js";
 
-// Ensure there are no trailing characters in the PORT environment variable
 const PORT = parseInt(process.env.PORT, 10) || 4000;
 
 const corsConfig = {
-    origin: process.env.CLIENT_URL || 4000,
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
     credentials: true
 };
 
@@ -33,6 +32,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors(corsConfig));
+
+// Middleware to log requests and cookies (for debugging)
+app.use((req, res, next) => {
+    console.log(`Request URL: ${req.url}`);
+    console.log(`Request Cookies: ${JSON.stringify(req.cookies)}`);
+    next();
+});
 
 // Connect to database
 connectDB();

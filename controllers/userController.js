@@ -94,14 +94,12 @@ export const login = async (req, res) => {
             userId: user._id
         };
 
-        // JWT token set to expire in 7 days
         const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '7d' });
 
-        // Setting the cookie to also expire in 7 days
         return res.status(200).cookie("token", token, {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-            httpOnly: true, // the cookie is only accessible by the web server
-            secure: false, // cookie will be sent only over HTTPS
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // cookie will be sent only over HTTPS
             sameSite: 'None' // allow cross-origin requests
         }).json({
             _id: user._id,
@@ -114,6 +112,7 @@ export const login = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 
 

@@ -7,6 +7,8 @@ import { Server } from "socket.io";
 const app = express();
 const server = http.createServer(app);
 
+
+// check the url's
 const io = new Server(server, {
     cors: {
         origin: ['https://onlyhumanity.co.uk', 'http://localhost:5173', 'http://192.168.0.108:5173'],

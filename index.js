@@ -18,7 +18,9 @@ import bookingRoute from "./routes/bookingRoute.js";
 import forumPostRoute from "./routes/forumPostRoute.js";
 import forumCommentRoutes from "./routes/forumCommentRoutes.js";
 import forumReplyRoutes from "./routes/forumReplyRoutes.js";
+// import app and server from socket.js
 import { app, server } from "./socket/socket.js";
+
 
 const PORT = parseInt(process.env.PORT, 10) || 4000;
 

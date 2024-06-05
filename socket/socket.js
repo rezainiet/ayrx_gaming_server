@@ -18,10 +18,11 @@ const io = new Server(server, {
     }
 });
 
+
 const userSocketMap = {};
 
 io.on('connection', (socket) => {
-    console.log(`Socket ${socket.id} connected`);
+    console.log(`Socket ${socket.id} connected with query:`, socket.handshake.query);
 
     const userId = socket.handshake.query.userId;
     if (userId) {
@@ -45,6 +46,7 @@ io.on('connection', (socket) => {
         console.error(`Socket connection error: ${err.message}`, err);
     });
 });
+
 
 export const getReceiverSocketId = (receiverId) => {
     return userSocketMap[receiverId];

@@ -1,5 +1,3 @@
-// socket.js
-
 import express from "express";
 import http from 'http';
 import { Server } from "socket.io";
@@ -7,18 +5,18 @@ import { Server } from "socket.io";
 const app = express();
 const server = http.createServer(app);
 
-
-// check the url's
 const io = new Server(server, {
     cors: {
-        origin: ['https://onlyhumanity.co.uk', 'http://localhost:5173', 'http://192.168.0.108:5173'],
-        methods: ['GET', 'POST']
+        origin: [
+            'https://onlyhumanity.co.uk',
+            'http://localhost:5173',
+            'http://192.168.0.108:5173',
+            'https://your-frontend-domain.com' // Replace with your actual frontend deployment domain
+        ],
+        methods: ['GET', 'POST'],
+        credentials: true
     }
 });
-
-export const getReceiverSocketId = (receiverId) => {
-    return userSocketMap[receiverId];
-}
 
 const userSocketMap = {};
 
@@ -26,7 +24,7 @@ io.on('connection', (socket) => {
     console.log(`Socket ${socket.id} connected`);
 
     const userId = socket.handshake.query.userId;
-    if (userId !== undefined) {
+    if (userId) {
         userSocketMap[userId] = socket.id;
         io.emit('userActive', userId);  // Emit user active event
     }
@@ -42,6 +40,14 @@ io.on('connection', (socket) => {
     socket.on('userActive', (userId) => {
         io.emit('userActive', userId);  // Handle user active event
     });
+
+    socket.on('connect_error', (err) => {
+        console.error(`Socket connection error: ${err.message}`, err);
+    });
 });
+
+export const getReceiverSocketId = (receiverId) => {
+    return userSocketMap[receiverId];
+}
 
 export { app, server, io };

@@ -9,9 +9,11 @@ const io = new Server(server, {
     cors: {
         origin: [
             'https://onlyhumanity.co.uk',
+            'https://www.onlyhumanity.co.uk',
+            'onlyhumanity.co.uk',
             'http://localhost:5173',
             'http://192.168.0.108:5173',
-            'https://your-frontend-domain.com' // Replace with your actual frontend deployment domain
+            'http://31.220.111.10/' // Replace with your actual frontend deployment domain
         ],
         methods: ['GET', 'POST'],
         credentials: true

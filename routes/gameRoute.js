@@ -5,7 +5,7 @@ import { createGame, getGames, getSingleGame } from "../controllers/gameControll
 const router = express.Router();
 
 router.route("/create").post(isAuthenticated, createGame);
-router.route("/getGames").get(isAuthenticated, getGames);
+router.route("/getGames").get(getGames);
 router.route("/getGames/:id").get(isAuthenticated, getSingleGame);
 // router.route("/:id").get(isAuthenticated, getMessage);
 

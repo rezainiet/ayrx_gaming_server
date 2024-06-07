@@ -4,7 +4,7 @@ import { getBookings, updateBooking, updateBookingConfirm } from "../controllers
 
 const router = express.Router();
 
-// http://localhost:4000//api/v1/booking/getBookings/:userId
+// https://www.api.onlyhumanity.co.uk//api/v1/booking/getBookings/:userId
 router.route('/getBookings/:userId').get(isAuthenticated, getBookings)
 router.route('/updateBooking/:bookingId').put(isAuthenticated, updateBooking)
 router.route('/updateBookingConfirm/:bookingId').put(isAuthenticated, updateBookingConfirm)

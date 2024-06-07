@@ -10,7 +10,7 @@ router.route("/getPosts/:id").get(isAuthenticated, getPosts);
 router.route("/:postId/createComment").put(isAuthenticated, createComment);
 router.route("/:groupId/createPostInGroup").post(isAuthenticated, createPostInGroup);
 router.route("/:postId/like").post(isAuthenticated, likePost);
-// http://localhost:4000/api/v1/posts/postId/like
+// https://www.api.onlyhumanity.co.uk/api/v1/posts/postId/like
 
 
 

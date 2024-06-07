@@ -4,13 +4,13 @@ import { createPayment, getUserTransactions, sendTip } from '../controllers/paym
 
 const router = express.Router();
 
-// http://localhost:4000/api/v1/payment/payment_intent
+// https://www.api.onlyhumanity.co.uk/api/v1/payment/payment_intent
 router.route("/payment_intent").post(isAuthenticated, createPayment);
 
-// http://localhost:4000/api/v1/payment/send-tip
+// https://www.api.onlyhumanity.co.uk/api/v1/payment/send-tip
 router.route("/send-tip").post(isAuthenticated, sendTip);
 
-// http://localhost:4000/api/v1/payment/transactions
+// https://www.api.onlyhumanity.co.uk/api/v1/payment/transactions
 router.route("/transactions").get(isAuthenticated, getUserTransactions);
 
 

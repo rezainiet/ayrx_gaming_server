@@ -96,11 +96,13 @@ export const login = async (req, res) => {
 
         const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '7d' });
 
+        const isProduction = process.env.NODE_ENV === 'production';
+
         return res.status(200).cookie("token", token, {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // cookie will be sent only over HTTPS
-            sameSite: 'None' // allow cross-origin requests
+            secure: isProduction, // cookie will be sent only over HTTPS in production
+            sameSite: isProduction ? 'None' : 'Lax' // use 'Lax' in development to allow cross-origin requests
         }).json({
             _id: user._id,
             userName: user.userName,

@@ -25,7 +25,7 @@ import { app, server } from "./socket/socket.js";
 const PORT = parseInt(process.env.PORT, 10) || 4000;
 
 const allowedOrigins = [
-    process.env.CLIENT_URL || 'http://localhost:5173',
+    process.env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:8080',
     'https://www.admin.onlyhumanity.co.uk'
 ];
 
@@ -42,11 +42,12 @@ const corsOptions = {
     credentials: true,
 };
 
+app.use(cors(corsOptions));
+
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(cors(corsOptions));
 
 // Middleware to log requests and cookies (for debugging)
 // app.use((req, res, next) => {

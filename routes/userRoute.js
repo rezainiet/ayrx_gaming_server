@@ -3,14 +3,18 @@ import {
     getOtherUsers, getUserData, getUserDataById, login, logout, register,
     updateUserDetails, sendFriendRequest, cancelFriendRequest, acceptFriendRequest,
     blockUser, searchUsers, unBlockUser, updateHourlyRate, addUserProject, getProjects,
-    getProjectById, getRandomUsers
+    getProjectById, getRandomUsers,
+    adminLogin
 } from "../controllers/userController.js";
 import isAuthenticated from "../middleware/isAuthenticated.js";
+import { updateRoles } from "../controllers/updateRoles.js";
 
 const router = express.Router();
 
 router.route("/register").post(register);
 router.route("/login").post(login);
+router.route("/login-admin").post(adminLogin);
+router.route("/updateRole").post(updateRoles);
 router.route("/logout").get(logout);
 router.route("/getUserDetails").get(isAuthenticated, getUserData);
 router.route("/getUserDataById/:id").get(isAuthenticated, getUserDataById);

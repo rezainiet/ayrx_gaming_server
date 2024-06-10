@@ -111,7 +111,12 @@ const userModel = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "ForumPost"
         }
-    ]
+    ],
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user"
+    }
 }, { timestamps: true });
 
 export const User = mongoose.model("User", userModel);

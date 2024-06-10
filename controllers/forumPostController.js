@@ -5,8 +5,10 @@ import { User } from "../models/user.Model.js";
 export const createForumPost = async (req, res) => {
     try {
         const { title, content, imageUrl, user } = req.body; // Extract title, content, and image from request body
+        console.log(req.body)
         const forumPost = new ForumPost({ title, content, image: imageUrl, user }); // Create new ForumPost object
         const getUser = await User.findById(user);
+        console.log('getUser')
         console.log(getUser)
         getUser.forumPosts.push(forumPost._id);
         await getUser.save();

@@ -91,7 +91,8 @@ export const login = async (req, res) => {
         }
 
         const tokenData = {
-            userId: user._id
+            userId: user._id,
+            role: user.role
         };
 
         const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '7d' });
@@ -107,7 +108,64 @@ export const login = async (req, res) => {
             _id: user._id,
             userName: user.userName,
             fullName: user.fullName,
-            profilePhoto: user.profilePhoto
+            profilePhoto: user.profilePhoto,
+            role: user.role
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+// admin login api
+export const adminLogin = async (req, res) => {
+    try {
+        const { userName, password } = req.body;
+        if (!userName || !password) {
+            return res.status(400).json({ message: "All fields are required." });
+        }
+        const user = await User.findOne({ userName });
+        if (!user) {
+            return res.status(400).json({
+                message: "Incorrect username or password.",
+                success: false
+            });
+        }
+        if (user.role !== 'admin') {
+            return res.status(403).json({
+                message: "You don't have any permission to login in admin panel!",
+                success: false
+            });
+        }
+        const isPasswordMatched = await bcrypt.compare(password, user.password);
+        if (!isPasswordMatched) {
+            return res.status(400).json({
+                message: "Incorrect username or password.",
+                success: false
+            });
+        }
+
+        const tokenData = {
+            userId: user._id,
+            role: user.role
+        };
+
+        const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '7d' });
+
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        return res.status(200).cookie("token", token, {
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+            httpOnly: true,
+            secure: isProduction, // cookie will be sent only over HTTPS in production
+            sameSite: isProduction ? 'None' : 'Lax' // use 'Lax' in development to allow cross-origin requests
+        }).json({
+            _id: user._id,
+            userName: user.userName,
+            fullName: user.fullName,
+            profilePhoto: user.profilePhoto,
+            role: user.role
         });
     } catch (error) {
         console.log(error);

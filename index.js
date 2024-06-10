@@ -24,23 +24,36 @@ import { app, server } from "./socket/socket.js";
 
 const PORT = parseInt(process.env.PORT, 10) || 4000;
 
-const corsConfig = {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
-    credentials: true
+const allowedOrigins = [
+    process.env.CLIENT_URL || 'http://localhost:5173',
+    'https://www.admin.onlyhumanity.co.uk'
+];
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        // allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
+    credentials: true,
 };
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(cors(corsConfig));
+app.use(cors(corsOptions));
 
 // Middleware to log requests and cookies (for debugging)
-app.use((req, res, next) => {
-    console.log(`Request URL: ${req.url}`);
-    console.log(`Request Cookies: ${JSON.stringify(req.cookies)}`);
-    next();
-});
+// app.use((req, res, next) => {
+//     console.log(`Request URL: ${req.url}`);
+//     console.log(`Request Cookies: ${JSON.stringify(req.cookies)}`);
+//     next();
+// });
 
 // Connect to database
 connectDB();

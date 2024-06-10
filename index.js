@@ -25,7 +25,7 @@ import { app, server } from "./socket/socket.js";
 const PORT = parseInt(process.env.PORT, 10) || 4000;
 
 const allowedOrigins = [
-
+    'https://www.onlyhumanity.co.uk', 'http://localhost:5173', 'http://localhost:8080',
     'https://www.admin.onlyhumanity.co.uk'
 ];
 

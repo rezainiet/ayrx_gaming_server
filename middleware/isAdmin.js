@@ -1,5 +1,6 @@
 const isAdmin = (req, res, next) => {
     try {
+        console.log(req.id, req.role, req.cookies.token)
         // Check if the user is authenticated and their role is set in req
         if (!req.id || !req.role) {
             return res.status(401).json({ message: "User not authenticated!" });

@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.route("/create").post(isAuthenticated, createGame);
 router.route("/getGames").get(getGames);
-router.route("/getGames/:id").get(isAuthenticated, getSingleGame);
+router.route("/getGames/:id").get(getSingleGame);
 // router.route("/:id").get(isAuthenticated, getMessage);
 
 

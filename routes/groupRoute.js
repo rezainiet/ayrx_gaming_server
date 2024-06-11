@@ -7,7 +7,7 @@ const router = express.Router();
 // Route to create a group related to a game
 router.route("/create").post(isAuthenticated, createGroup);
 router.route("/relatedGroups/:gameId").get(isAuthenticated, getRelatedGroups);
-router.route("/getGroup/:groupId").get(isAuthenticated, getSingleGroupInfo);
+router.route("/getGroup/:groupId").get(getSingleGroupInfo);
 router.route("/:groupId/join").post(isAuthenticated, joinGroup);
 router.route("/:groupId/leave").post(isAuthenticated, leaveGroup);
 router.route("/:groupId/update").put(isAuthenticated, updateGroup);

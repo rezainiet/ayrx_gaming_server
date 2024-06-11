@@ -24,7 +24,6 @@ const io = new Server(server, {
 const userSocketMap = {};
 
 io.on('connection', (socket) => {
-    console.log(`Socket ${socket.id} connected with query:`, socket.handshake.query);
 
     const userId = socket.handshake.query.userId;
     if (userId) {

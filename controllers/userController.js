@@ -174,6 +174,59 @@ export const adminLogin = async (req, res) => {
 };
 
 
+export const updateAdminPassword = async (req, res) => {
+    try {
+        const { userId, oldPassword, newPassword } = req.body;
+
+        if (!userId || !oldPassword || !newPassword) {
+            return res.status(400).json({ message: "All fields are required." });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        if (user.role !== 'admin') {
+            return res.status(403).json({
+                message: "You don't have permission to perform this action.",
+                success: false
+            });
+        }
+
+        const isPasswordMatched = await bcrypt.compare(oldPassword, user.password);
+        if (!isPasswordMatched) {
+            return res.status(400).json({ message: "Old password is incorrect." });
+        }
+
+        // const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        user.password = hashedPassword;
+        await user.save();
+
+        const tokenData = {
+            userId: user._id,
+            role: user.role
+        };
+
+        const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '7d' });
+
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        return res.status(200).cookie("token", token, {
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+            httpOnly: true,
+            secure: isProduction, // cookie will be sent only over HTTPS in production
+            sameSite: isProduction ? 'None' : 'Lax' // use 'Lax' in development to allow cross-origin requests
+        }).json({ message: "Password updated successfully." });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
 
 
 

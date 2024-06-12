@@ -1,10 +1,10 @@
-import express from "express";
-import isAuthenticated from "../middleware/isAuthenticated.js";
-import { createAppointment } from "../controllers/appointmentController.js";
+import express from 'express';
+import { createAppointment, checkAvailability, getBookedAppointments } from '../controllers/appointmentController.js';
 
 const router = express.Router();
 
-// https://www.api.onlyhumanity.co.uk/api/v1/appointment/*
-router.route('/createAppointment').post(isAuthenticated, createAppointment)
+router.post('/createAppointment', createAppointment);
+router.post('/checkAvailability', checkAvailability);
+router.post('/getBookedAppointments', getBookedAppointments);
 
 export default router;

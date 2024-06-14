@@ -38,6 +38,11 @@ export const createAppointment = async (req, res) => {
         const start = moment(`${date}T${startTime}`).toDate();
         const end = moment(`${date}T${endTime}`).toDate();
 
+        // get user from database
+        const sender = await User.findById(buyer);
+        const recipient = await User.findById(seller);
+
+
         // Create a transaction record for the tip
         const appointmentTransaction = await Transaction.create({
             payment: {
@@ -69,8 +74,7 @@ export const createAppointment = async (req, res) => {
         });
 
 
-        const sender = await User.findById(buyer);
-        const recipient = await User.findById(seller);
+
         const appointment = new Appointment({
             buyer,
             seller,

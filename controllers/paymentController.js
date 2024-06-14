@@ -199,3 +199,21 @@ export const sendTip = async (req, res) => {
         res.status(500).send({ success: false, error: error.message });
     }
 };
+
+
+export const createAppointmentPayment = async (req, res) => {
+    const { amount } = req.body;
+
+    try {
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount,
+            currency: 'usd',
+        });
+
+        res.send({
+            clientSecret: paymentIntent.client_secret,
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

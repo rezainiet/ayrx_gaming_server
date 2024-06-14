@@ -1,4 +1,5 @@
 import Appointment from "../models/appointment.Model.js";
+import Transaction from "../models/transaction.Model.js";
 import { User } from "../models/user.Model.js";
 import moment from "moment";
 
@@ -27,7 +28,7 @@ const checkScheduleAvailability = async (date, startTime, endTime, seller) => {
 
 export const createAppointment = async (req, res) => {
     try {
-        const { buyer, seller, amount, status, date, startTime, endTime, message } = req.body;
+        const { buyer, seller, amount, status, date, startTime, endTime, message, clientSecret } = req.body;
 
         const isAvailable = await checkScheduleAvailability(date, startTime, endTime, seller);
         if (!isAvailable) {
@@ -37,6 +38,39 @@ export const createAppointment = async (req, res) => {
         const start = moment(`${date}T${startTime}`).toDate();
         const end = moment(`${date}T${endTime}`).toDate();
 
+        // Create a transaction record for the tip
+        const appointmentTransaction = await Transaction.create({
+            payment: {
+                amount: amount,
+                currency: 'usd',
+                method: 'stripe',
+                status: 'completed',
+                referenceId: `${clientSecret}-${Date.now()}`,
+                transactionDate: new Date(),
+            },
+            type: 'credit',
+            transactionType: 'Appointment Booking',
+            userId: recipient._id,
+            description: message
+        });
+        const appointmentTransactionBuyer = await Transaction.create({
+            payment: {
+                amount: amount,
+                currency: 'usd',
+                method: 'stripe',
+                status: 'completed',
+                referenceId: `${clientSecret}-${Date.now()}`,
+                transactionDate: new Date(),
+            },
+            type: 'debit',
+            transactionType: 'Appointment Booking',
+            userId: recipient._id,
+            description: message
+        });
+
+
+        const sender = await User.findById(buyer);
+        const recipient = await User.findById(seller);
         const appointment = new Appointment({
             buyer,
             seller,
@@ -56,6 +90,18 @@ export const createAppointment = async (req, res) => {
         await User.findByIdAndUpdate(seller, {
             $push: { sellerAppointments: savedAppointment._id }
         });
+
+
+
+        // Update the recipient's transactions array
+        recipient.transactions.push(appointmentTransaction._id);
+        sender.transactions.push(appointmentTransactionBuyer._id);
+        const newAmount = amount * 0.9;
+        recipient.balance = recipient.balance + newAmount;
+        await sender.save();
+        await recipient.save();
+
+
 
         res.status(201).json({ message: 'Appointment booked successfully.', appointment: savedAppointment });
     } catch (error) {
@@ -89,5 +135,23 @@ export const getBookedAppointments = async (req, res) => {
     } catch (error) {
         console.error('Error fetching booked appointments:', error);
         res.status(500).json({ error: 'An error occurred while fetching booked appointments.' });
+    }
+};
+
+// New function to get appointments by userId
+export const getUserAppointments = async (req, res) => {
+    try {
+        const { userId } = req.query;
+
+        const appointments = await Appointment.find({
+            $or: [{ buyer: userId }, { seller: userId }]
+        }).populate('buyer', 'fullName profilePhoto _id')
+            .populate('seller', 'fullName profilePhoto _id')
+            .select('date startTime endTime message buyer seller');
+
+        res.status(200).json(appointments);
+    } catch (error) {
+        console.error('Error fetching user appointments:', error);
+        res.status(500).json({ error: 'An error occurred while fetching user appointments.' });
     }
 };

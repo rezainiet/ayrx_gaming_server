@@ -9,8 +9,8 @@ const TransactionSchema = new mongoose.Schema({
         status: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
         transactionDate: { type: Date, default: Date.now },
         referenceId: { type: String, unique: true, required: true }, // unique identifier for the transaction
-        email: { type: String, required: true },
-        paymentAddress: { type: String, required: true },
+        email: { type: String },
+        paymentAddress: { type: String },
         productID: { type: mongoose.Schema.Types.ObjectId, ref: 'Projects' },
         notes: { type: String, default: '' }
     },

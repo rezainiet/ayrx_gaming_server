@@ -290,7 +290,8 @@ export const getOtherUsers = async (req, res) => {
 export const getRandomUsers = async (req, res) => {
     try {
         const randomUsers = await User.aggregate([
-            { $sample: { size: 10 } } // Fetch 10 random users
+            { $match: { username: { $ne: 'admin' } } }, // Exclude users with username 'admin'
+            { $sample: { size: 10 } } // Fetch 10 random users from the filtered set
         ]);
         res.json(randomUsers);
     } catch (error) {

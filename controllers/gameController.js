@@ -31,7 +31,6 @@ export const createGame = async (req, res) => {
     }
 };
 
-
 export const getGames = async (req, res) => {
     try {
         // Fetch all games from the database
@@ -45,7 +44,6 @@ export const getGames = async (req, res) => {
         res.status(500).json({ message: "Server error. Please try again later." });
     }
 };
-
 
 export const getSingleGame = async (req, res) => {
     try {
@@ -72,6 +70,50 @@ export const getSingleGame = async (req, res) => {
         res.status(200).json(game);
     } catch (error) {
         console.error("Error while getting single game:", error);
+        res.status(500).json({ message: "Server error. Please try again later." });
+    }
+};
+
+export const updateGame = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { name, coverPhoto, description, ratings } = req.body;
+
+        // Find the game by ID and update it
+        const updatedGame = await Game.findByIdAndUpdate(id, {
+            name,
+            coverPhoto,
+            description,
+            ratings,
+        }, { new: true });
+
+        if (!updatedGame) {
+            return res.status(404).json({ message: "Game not found" });
+        }
+
+        // Return the updated game
+        res.status(200).json(updatedGame);
+    } catch (error) {
+        console.error("Error while updating game:", error);
+        res.status(500).json({ message: "Server error. Please try again later." });
+    }
+};
+
+export const deleteGame = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        // Find the game by ID and delete it
+        const deletedGame = await Game.findByIdAndDelete(id);
+
+        if (!deletedGame) {
+            return res.status(404).json({ message: "Game not found" });
+        }
+
+        // Return a success message
+        res.status(200).json({ message: "Game deleted successfully" });
+    } catch (error) {
+        console.error("Error while deleting game:", error);
         res.status(500).json({ message: "Server error. Please try again later." });
     }
 };

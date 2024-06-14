@@ -24,7 +24,11 @@ const AppointmentSchema = new mongoose.Schema({
     date: { type: Date, required: true },
     startTime: { type: Date, required: true },
     endTime: { type: Date, required: true },
-    message: { type: String, default: '' }
+    message: { type: String, default: '' },
+    transactionID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Transaction'
+    }
 }, {
     timestamps: true // Automatically create `createdAt` and `updatedAt` fields
 });

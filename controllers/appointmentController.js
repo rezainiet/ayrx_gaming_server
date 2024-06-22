@@ -254,7 +254,6 @@ export const cancelAppointment = async (req, res) => {
 
         // Save the updated appointment
         const updatedAppointment = await appointment.save();
-        console.log(updatedAppointment)
 
         res.status(200).json({ message: 'Appointment cancelled successfully.', appointment: updatedAppointment });
     } catch (error) {
@@ -290,5 +289,37 @@ export const cancelAppointmentFromSeller = async (req, res) => {
     } catch (error) {
         console.error('Error cancelling appointment:', error);
         res.status(500).json({ error: 'An error occurred while cancelling the appointment.' });
+    }
+};
+
+
+export const deleteAppointment = async (req, res) => {
+    const { appointmentId } = req.params;
+    console.log(appointmentId)
+    try {
+        // Find the appointment by ID
+        const appointment = await Appointment.findById(appointmentId);
+
+        if (!appointment) {
+            return res.status(404).json({ error: 'Appointment not found.' });
+        }
+
+        // Remove the appointment from the database
+        await Appointment.findByIdAndDelete(appointmentId);
+
+        // Remove the appointment reference from the buyer's appointments array
+        await User.findByIdAndUpdate(appointment.buyer, {
+            $pull: { buyerAppointments: appointmentId }
+        });
+
+        // Remove the appointment reference from the seller's appointments array
+        await User.findByIdAndUpdate(appointment.seller, {
+            $pull: { sellerAppointments: appointmentId }
+        });
+
+        res.status(200).json({ message: 'Appointment deleted successfully.' });
+    } catch (error) {
+        console.error('Error while deleting appointment:', error);
+        res.status(500).json({ error: 'An error occurred while deleting the appointment.' });
     }
 };

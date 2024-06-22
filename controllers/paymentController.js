@@ -3,6 +3,7 @@ import Transaction from "../models/transaction.Model.js";
 import { User } from "../models/user.Model.js"; // Assuming the user model file is named user.Model.js
 import { Projects } from "../models/projects.Model.js";
 import { Bookings } from "../models/booking.Model.js";
+import 'dotenv/config';
 
 const stripe = Stripe(process.env.STRIPE_CLIENT_SECRET);
 

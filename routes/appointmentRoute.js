@@ -1,5 +1,5 @@
 import express from 'express';
-import { createAppointment, createFreeAppointment, checkAvailability, getBookedAppointments, getUserAppointments, getPurchasedAppointments, cancelAppointment, getReceivedAppointments, cancelAppointmentFromSeller } from '../controllers/appointmentController.js';
+import { createAppointment, createFreeAppointment, checkAvailability, getBookedAppointments, getUserAppointments, getPurchasedAppointments, cancelAppointment, getReceivedAppointments, cancelAppointmentFromSeller, deleteAppointment } from '../controllers/appointmentController.js';
 import isAuthenticated from '../middleware/isAuthenticated.js';
 
 const router = express.Router();
@@ -13,5 +13,6 @@ router.get('/getPurchasedAppointments/:userId', isAuthenticated, getPurchasedApp
 router.get('/getReceivedAppointments/:userId', isAuthenticated, getReceivedAppointments);
 router.put('/cancelAppointment/:appointmentId/:userId', isAuthenticated, cancelAppointment);
 router.put('/cancelAppointmentFromSeller/:appointmentId/:userId', isAuthenticated, cancelAppointmentFromSeller);
+router.delete('/deleteAppointment/:appointmentId/:userId', isAuthenticated, deleteAppointment);
 
 export default router;

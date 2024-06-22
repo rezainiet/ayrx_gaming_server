@@ -4,7 +4,7 @@ import { User } from "../models/user.Model.js"; // Assuming the user model file 
 import { Projects } from "../models/projects.Model.js";
 import { Bookings } from "../models/booking.Model.js";
 
-const stripe = Stripe('sk_test_51PKmGjDYUg5iGXsD86oQUSGcVKnT607Vdbu7WhusiNwLuvot4EaPgJCS5BjysPrKdmAMhqsgx4Pgi2dU8FkzwYD200uuhrdOPE');
+const stripe = Stripe(process.env.STRIPE_CLIENT_SECRET);
 
 
 export const createPayment = async (req, res) => {

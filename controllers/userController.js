@@ -244,20 +244,28 @@ export const logout = async (req, res) => {
 };
 
 // Fetch all users to the messages
-// export const getOtherUsers_Old = async (req, res) => {
-//     try {
-//         const loggedInUserId = req.id;
-//         // const otherUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
-//         const otherUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
-//         return res.status(200).json(otherUsers)
-//     } catch (error) {
-//         console.log(error)
-//     }
-// };
-
-export const getOtherUsers = async (req, res) => {
+export const getOtherUsers_old = async (req, res) => {
     try {
         const loggedInUserId = req.id;
+        // const otherUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+        const otherUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+        return res.status(200).json(otherUsers)
+    } catch (error) {
+        console.log(error)
+    }
+};
+
+export const getRelevantUsers = async (req, res) => {
+    try {
+        const loggedInUserId = req.id;
+
+        // Fetch friends of the logged-in user
+        const loggedInUser = await User.findById(loggedInUserId).populate('friends', '-password');
+        if (!loggedInUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const friends = loggedInUser.friends;
 
         // Fetch conversations involving the logged-in user
         const conversations = await Conversation.find({
@@ -275,16 +283,72 @@ export const getOtherUsers = async (req, res) => {
         });
 
         // Fetch details of these users, excluding the password field
-        const otherUsers = await User.find({
+        const conversationParticipants = await User.find({
             _id: { $in: Array.from(participantIds) }
         }).select("-password");
 
-        return res.status(200).json(otherUsers);
+        // Combine friends and conversation participants, removing duplicates
+        const combinedUsers = [...friends, ...conversationParticipants];
+        const uniqueUsers = Array.from(new Set(combinedUsers.map(user => user._id.toString()))).map(
+            id => combinedUsers.find(user => user._id.toString() === id)
+        );
+
+        return res.status(200).json(uniqueUsers);
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+// Fetch all friends of the logged-in user
+// export const getOtherUsers = async (req, res) => {
+//     try {
+//         const loggedInUserId = req.id;
+//         const loggedInUser = await User.findById(loggedInUserId).populate('friends', '-password');
+//         if (!loggedInUser) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+//         return res.status(200).json(loggedInUser.friends);
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).json({ message: 'Error fetching friends list' });
+//     }
+// };
+
+
+
+
+// export const getOtherUsers_new = async (req, res) => {
+//     try {
+//         const loggedInUserId = req.id;
+//         console.log(loggedInUserId, "loggedInUserId")
+
+//         // Fetch conversations involving the logged-in user
+//         const conversations = await Conversation.find({
+//             participants: loggedInUserId
+//         }).select('participants');
+
+//         // Extract participants from conversations, excluding the logged-in user
+//         const participantIds = new Set();
+//         conversations.forEach(conversation => {
+//             conversation.participants.forEach(participantId => {
+//                 if (participantId.toString() !== loggedInUserId) {
+//                     participantIds.add(participantId.toString());
+//                 }
+//             });
+//         });
+
+//         // Fetch details of these users, excluding the password field
+//         const otherUsers = await User.find({
+//             _id: { $in: Array.from(participantIds) }
+//         }).select("-password");
+
+//         return res.status(200).json(otherUsers);
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({ message: "Internal server error" });
+//     }
+// };
 
 
 export const getRandomUsers = async (req, res) => {

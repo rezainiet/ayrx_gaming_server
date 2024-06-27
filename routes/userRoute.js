@@ -1,11 +1,12 @@
 import express from "express";
 import {
-    getOtherUsers, getUserData, getUserDataById, login, logout, register,
+    getUserData, getUserDataById, login, logout, register,
     updateUserDetails, sendFriendRequest, cancelFriendRequest, acceptFriendRequest,
     blockUser, searchUsers, unBlockUser, updateHourlyRate, addUserProject, getProjects,
     getProjectById, getRandomUsers,
     adminLogin,
-    updateAdminPassword
+    updateAdminPassword,
+    getRelevantUsers
 } from "../controllers/userController.js";
 import isAuthenticated from "../middleware/isAuthenticated.js";
 import { updateRoles } from "../controllers/updateRoles.js";
@@ -13,15 +14,16 @@ import isAdmin from "../middleware/isAdmin.js";
 
 const router = express.Router();
 
+router.route("/").get(isAuthenticated, getRelevantUsers);
 router.route("/register").post(register);
 router.route("/login").post(login);
 router.route("/login-admin").post(adminLogin);
 router.route("/updateRole").post(updateRoles);
 router.route("/logout").get(logout);
 router.route("/getUserDetails").get(isAuthenticated, getUserData);
+// router.route("/getUserDetails").get(isAuthenticated, getFriends);
 router.route("/getUserDataById/:id").get(isAuthenticated, getUserDataById);
 router.route("/updateUserDetails").put(isAuthenticated, updateUserDetails);
-router.route("/").get(isAuthenticated, getOtherUsers);
 router.route("/getRandomUser").get(getRandomUsers);
 
 // Friend request routes

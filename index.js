@@ -18,6 +18,7 @@ import bookingRoute from "./routes/bookingRoute.js";
 import forumPostRoute from "./routes/forumPostRoute.js";
 import forumCommentRoutes from "./routes/forumCommentRoutes.js";
 import forumReplyRoutes from "./routes/forumReplyRoutes.js";
+import withdrawalRoute from "./routes/withdrawRoute.js";
 // import app and server from socket.js
 import { app, server } from "./socket/socket.js";
 
@@ -75,6 +76,7 @@ app.use("/api/v1/appointment", appointmentRoute);
 app.use('/api/forumPosts', forumPostRoute);
 app.use('/api/forumComments', forumCommentRoutes);
 app.use('/api/forumReplies', forumReplyRoutes);
+app.use('/api/v1/withdrawal', withdrawalRoute);
 
 app.get('/', (req, res) => res.send(`This app is running on port: ${PORT}`));
 

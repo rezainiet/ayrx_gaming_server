@@ -44,7 +44,7 @@ export const createAppointment = async (req, res) => {
         // Create a transaction record for the tip
         const appointmentTransaction = await Transaction.create({
             payment: {
-                amount: amount,
+                amount: amount * 0.7,
                 currency: 'usd',
                 method: 'stripe',
                 status: 'completed',
@@ -94,7 +94,7 @@ export const createAppointment = async (req, res) => {
         // Update the recipient's transactions array
         recipient.transactions.push(appointmentTransaction._id);
         sender.transactions.push(appointmentTransactionBuyer._id);
-        const newAmount = amount * 0.9;
+        const newAmount = amount * 0.7;
         recipient.balance = recipient.balance + newAmount;
         await sender.save();
         await recipient.save();

@@ -63,7 +63,7 @@ export const updateBookingConfirm = async (req, res) => {
         }
 
         // Update the user's balance
-        user.balance = user.balance + amount;
+        user.balance = user.balance + amount * 0.7;
 
         // Save the updated user information
         await user.save();

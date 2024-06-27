@@ -44,7 +44,6 @@ router.route("/:userId/addUserProject").post(isAuthenticated, addUserProject);
 router.route("/getProjects/:userID").get(isAuthenticated, getProjects);
 router.route("/projects/:id").get(isAuthenticated, getProjectById);
 
-
 // Add new route for updating admin's password
 router.route("/updateAdminPassword").put(isAuthenticated, isAdmin, updateAdminPassword);
 

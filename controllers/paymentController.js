@@ -51,7 +51,7 @@ export const createPayment = async (req, res) => {
 
         // Create a transaction record for the seller (credit)
         // Adjust the amount based on your business logic
-        const finalAmount = amount / 100 * 0.9; // Assuming 90% of the amount goes to the seller
+        const finalAmount = amount / 100 * 0.7; // Assuming 70% of the amount goes to the seller
         const sellerTransaction = await Transaction.create({
             payment: {
                 amount: finalAmount,
@@ -190,7 +190,7 @@ export const sendTip = async (req, res) => {
         // Update the recipient's transactions array
         recipient.transactions.push(tipTransaction._id);
         sender.transactions.push(tipTransactionBuyer._id);
-        recipient.balance = recipient.balance + newAmount;
+        recipient.balance = recipient.balance + newAmount * 0.7;
         await sender.save();
         await recipient.save();
 
